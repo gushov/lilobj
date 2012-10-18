@@ -1,11 +1,11 @@
-/*! lilobj - v0.0.0 - 2012-10-15
+/*! lilobj - v0.0.0 - 2012-10-19
  * Copyright (c) 2012 August Hovland <gushov@gmail.com>; Licensed MIT */
 
 /*global provide */
 
 (function (provide) {
 
-  var _ = require('lil_', 'lil_');
+  var _ = require('lil_');
 
   var LilObj = {
 
