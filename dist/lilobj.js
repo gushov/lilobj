@@ -1,42 +1,186 @@
-/*! lilobj - v0.0.0 - 2012-10-19
+/*! lilobj - v0.0.0 - 2012-10-31
  * Copyright (c) 2012 August Hovland <gushov@gmail.com>; Licensed MIT */
 
-/*global provide */
+(function (ctx) {
 
-(function (provide) {
+  "use strict";
 
-  var _ = require('lil_');
+  var defined = {};
+  var exported = {};
 
-  var LilObj = {
+  function resolve(from, name) {
 
-    extend: function (props) {
+    if (name.indexOf('.') === -1) {
+      return name;
+    }
 
-      var result = Object.create(this);
+    name = name.split('/');
+    from = from ? from.split('/') : [];
+    from.pop();
 
-      _.eachIn(props, function (name, value) {
-        result[name] = value;
-      });
+    if (name[0] === '.') {
+      name.shift();
+    }
 
-      return result;
+    while(name[0] === '..') {
+      name.shift();
+      from.pop();
+    }
 
-    },
+    return from.concat(name).join('/');
 
-    create: function () {
+  }
 
-      var object = Object.create(this);
+  //@TODO handle provide/require/define already in scope
 
-      if (object.construct !== undefined) {
-        object.construct.apply(object, arguments);
-      }
+  ctx.provide = function (name, module, isDefinition) {
 
-      return object;
+    if (isDefinition) {
+      return defined[name] = module;
+    } else {
+      return exported[name] = module;
+    }
+
+  };
+
+  ctx.require = function (path, canonical) {
+
+    var exports, module;
+    var name = canonical || path;
+
+    if (exported[name]) {
+      return exported[name];
+    } else {
+
+      exports = exported[name] = {};
+      module = { exports: exports };
+      defined[name](function (path) {
+        return ctx.require(path, resolve(name, path));
+      }, module, exports);
+
+      return (exported[name] = module.exports);
 
     }
 
   };
 
-  provide('lilobj', LilObj);
+}(this));
+ 
+provide('lil_', function (require, module, exports) {
 
-}(typeof module !== 'undefined' ?
-    function (a, b) { module.exports = b; } :
-    provide));
+/*jshint curly:true, eqeqeq:true, immed:true, latedef:true,
+  newcap:true, noarg:true, sub:true, undef:true, boss:true,
+  strict:false, eqnull:true, browser:true, node:true */
+
+module.exports = {
+
+  each: function (arr, func, ctx) {
+
+    if (arr && arr.length) {
+      arr.forEach(func, ctx);
+    }
+
+  },
+
+  every: function (arr, func, ctx) {
+
+    if (arr && arr.length) {
+      return arr.every(func, ctx);
+    }
+    return false;
+
+  },
+
+  map: function (arr, func, ctx) {
+
+    if (arr && arr.length) {
+      return arr.map(func, ctx);
+    }
+    return [];
+
+  },
+
+  eachIn: function (obj, func) {
+
+    var keys = Object.keys(obj) || [];
+
+    keys.forEach(function (name, i) {
+      func(name, obj[name], i);
+    });
+
+  },
+
+  defaults: function (obj, defaults) {
+
+    this.eachIn(defaults, function (name, value) {
+      if (!obj[name]) { obj[name] = value; }
+    });
+
+    return obj;
+
+  },
+
+  pick: function(obj, keys) {
+
+    var picked = {};
+
+    this.each(keys, function (key) {
+      picked[key] = obj[key];
+    });
+
+    return picked;
+
+  },
+
+  pushOn: function (obj, prop, value) {
+
+    if (obj[prop] && typeof obj[prop].push === 'function') {
+      obj[prop].push(value);
+    } else if ( typeof obj[prop] === 'undefined' ) {
+      obj[prop] = [value];
+    }
+
+  }
+
+};
+
+}, true);
+
+provide('lilobj', function (require, module, exports) {
+
+/*jshint curly:true, eqeqeq:true, immed:true, latedef:true,
+  newcap:true, noarg:true, sub:true, undef:true, boss:true,
+  strict:false, eqnull:true, browser:true, node:true */
+
+var _ = require('lil_');
+
+module.exports = {
+
+  extend: function (props) {
+
+    var result = Object.create(this);
+
+    _.eachIn(props, function (name, value) {
+      result[name] = value;
+    });
+
+    return result;
+
+  },
+
+  create: function () {
+
+    var object = Object.create(this);
+
+    if (object.construct !== undefined) {
+      object.construct.apply(object, arguments);
+    }
+
+    return object;
+
+  }
+
+};
+
+
+}, true);

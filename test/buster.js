@@ -12,9 +12,7 @@ config["lilobj browser tests"] = {
   rootPath: "../",
   environment: "browser",
   sources: [
-    "node_modules/lilprovider/dist/lilprovider.js",
-    "node_modules/lil_/dist/lil_.js",
-    "lib/lilobj.js"
+    "dist/lilobj.js"
   ],
   tests: [
     "test/*-test.js"

@@ -4,7 +4,7 @@
 /*global assert */
 
 var buster = typeof buster !== 'undefined' ? buster : require("buster");
-var LilObj = require('../lib/lilobj', 'lilobj');
+var LilObj = typeof module !== 'undefined' ? require('../lib/lilobj') : require('lilobj');
 
 buster.testCase("LilObj", {
 
