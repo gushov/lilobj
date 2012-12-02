@@ -12,6 +12,10 @@ Returns new object with the prototype of the caller and the given properties.
 
 Returns new object with the prototype of the caller and invokes the construct method with args
 
+### isA(prototype)
+
+returns true if the caller has the given prototype
+
 ## Browser usage
 
 load dist/lilobj.js or dist/lilobj.min.js in you browser and call it like this:
@@ -30,6 +34,9 @@ load dist/lilobj.js or dist/lilobj.min.js in you browser and call it like this:
   });
 
   var ale = beer.create('cascade', 'two-row', 1056);
+
+  //returns true
+  ale.isA(beer)
 
 }());
 ```
@@ -50,6 +57,9 @@ var beer = lilobj.extend({
 });
 
 var ale = beer.create('cascade', 'two-row', 1056);
+
+//returns true
+ale.isA(beer)
 ```
 
 ## License

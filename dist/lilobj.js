@@ -1,4 +1,4 @@
-/*! lilobj - v0.0.0 - 2012-10-31
+/*! lilobj - v0.0.2 - 2012-12-02
  * Copyright (c) 2012 August Hovland <gushov@gmail.com>; Licensed MIT */
 
 (function (ctx) {
@@ -74,6 +74,19 @@ provide('lil_', function (require, module, exports) {
 
 module.exports = {
 
+  typeOf: function (x) {
+
+    var type = typeof x;
+
+    if (type === 'object') {
+      type = Array.isArray(x) ? 'array' : type;
+      type = x === null ? 'null' : type;
+    }
+
+    return type;
+
+  },
+
   each: function (arr, func, ctx) {
 
     if (arr && arr.length) {
@@ -100,13 +113,50 @@ module.exports = {
 
   },
 
-  eachIn: function (obj, func) {
+  eachIn: function (obj, func, ctx) {
 
-    var keys = Object.keys(obj) || [];
+    var keys = obj ? Object.keys(obj) : [];
 
     keys.forEach(function (name, i) {
-      func(name, obj[name], i);
+      func.call(ctx, name, obj[name], i);
     });
+
+  },
+
+  mapIn: function (obj, func, ctx) {
+
+    var result = {};
+
+    this.eachIn(obj, function (name, obj, i) {
+      result[name] = func.call(this, name, obj, i);
+    }, ctx);
+
+    return result;
+
+  },
+
+  extend: function (obj, src) {
+
+    this.eachIn(src, function (name, value) {
+
+      var type = this.typeOf(value);
+
+      switch (type) {
+        case 'object':
+          obj[name] = obj[name] || {};
+          this.extend(obj[name] || {}, value);
+          break;
+        case 'boolean':
+          obj[name] = obj[name] && value;
+          break;
+        default:
+          obj[name] = value;
+          break;
+      }
+
+      return obj;
+
+    }, this);
 
   },
 
@@ -123,9 +173,10 @@ module.exports = {
   pick: function(obj, keys) {
 
     var picked = {};
+    keys = this.typeOf(keys) === 'array' ? keys : Object.keys(keys);
 
     this.each(keys, function (key) {
-      picked[key] = obj[key];
+      picked[key] = obj && obj[key];
     });
 
     return picked;
@@ -155,6 +206,14 @@ provide('lilobj', function (require, module, exports) {
 var _ = require('lil_');
 
 module.exports = {
+
+  isA: function (prototype) {
+
+    function D() {}
+    D.prototype = prototype;
+    return this instanceof D;
+
+  },
 
   extend: function (props) {
 
