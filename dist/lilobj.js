@@ -1,4 +1,4 @@
-/*! lilobj - v0.0.2 - 2012-12-02
+/*! lilobj - v0.0.2 - 2012-12-05
  * Copyright (c) 2012 August Hovland <gushov@gmail.com>; Licensed MIT */
 
 (function (ctx) {
