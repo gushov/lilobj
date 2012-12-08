@@ -4,15 +4,15 @@ A li'l object inheritance sugar.
 
 ## Documentation
 
-### extends(properties)
+### __[obj|arr]__.extends(properties)
 
 Returns new object with the prototype of the caller and the given properties.
 
-### creates(args...)
+### __instance__.creates(args...)
 
 Returns new object with the prototype of the caller and invokes the construct method with args
 
-### isA(prototype)
+### __instance__.isA(prototype)
 
 returns true if the caller has the given prototype
 
@@ -25,7 +25,7 @@ load dist/lilobj.js or dist/lilobj.min.js in you browser and call it like this:
 
   var lilobj = require('lilobj');
 
-  var beer = lilobj.extend({
+  var beer = lilobj.obj.extend({
     construct: function (hops, malt, yeast) {
       this.hops = hops;
       this.malt = malt;
@@ -48,7 +48,7 @@ Install via npm: `npm install lilobj`
 ```javascript
 var lilobj = require('lilobj');
 
-var beer = lilobj.extend({
+var beer = lilobj.obj.extend({
   construct: function (hops, malt, yeast) {
     this.hops = hops;
     this.malt = malt;

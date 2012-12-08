@@ -8,9 +8,9 @@ var LilObj = typeof module !== 'undefined' ? require('../lib/lilobj') : require(
 
 buster.testCase("LilObj", {
 
-    "extends and creates objects": function () {
+    "should extend and create objects": function () {
 
-      var Parent = LilObj.extend({
+      var Parent = LilObj.obj.extend({
         type: null,
         construct: function (name) {
           this.name = name;
@@ -47,6 +47,38 @@ buster.testCase("LilObj", {
       assert.equals(gaga.hey(), 'Mom here');
       assert(gaga.isA(Mom));
       refute(gaga.isA(Dad));
+
+    },
+
+    "should extend and create arrays": function () {
+
+      var Parents = LilObj.arr.extend({
+
+        young: false,
+        construct: function (rents) {
+
+          rents.forEach(function (rent) {
+            this.push(rent);
+          }, this);
+
+        }
+      }, []);
+
+      var parents = Parents.create([
+        'azure',
+        'gus'
+      ]);
+
+      assert.equals(parents.length, 2);
+      assert(parents instanceof Array);
+      assert(parents.isA(Parents));
+
+      parents.push('martina');
+      var azure = parents.shift();
+
+      assert.equals(parents.length, 2);
+      assert.equals(azure, 'azure');
+      assert.equals(parents[1], 'martina');
 
     }
 

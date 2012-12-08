@@ -1,4 +1,4 @@
-/*! lilobj - v0.0.2 - 2012-12-05
+/*! lilobj - v0.0.4 - 2012-12-08
  * Copyright (c) 2012 August Hovland <gushov@gmail.com>; Licensed MIT */
 
 (function (ctx) {
@@ -135,38 +135,73 @@ module.exports = {
 
   },
 
-  extend: function (obj, src) {
+  walk: function (target, source, func, fill) {
 
-    this.eachIn(src, function (name, value) {
+    var self = this;
 
-      var type = this.typeOf(value);
+    var walkObj = function (target, source) {
 
-      switch (type) {
-        case 'object':
-          obj[name] = obj[name] || {};
-          this.extend(obj[name] || {}, value);
-          break;
-        case 'boolean':
-          obj[name] = obj[name] && value;
-          break;
-        default:
-          obj[name] = value;
-          break;
+      self.eachIn(source, function (name, obj) {
+        step(target[name], obj, name, target);
+      });
+
+    };
+
+    var step = function (target, source, name, parent) {
+
+      var type = self.typeOf(source);
+
+      if (type === 'object') {
+
+        if (!target && parent && fill) {
+          target = parent[name] = {};
+        }
+        
+        walkObj(target, source);
+
+      } else {
+        func.call(parent, target, source, name);
       }
 
-      return obj;
+    };
 
-    }, this);
+    step(target, source);
+
+  },
+
+  extend: function (obj, src) {
+
+    this.walk(obj, src, function (target, src, name) {
+      this[name] = src;
+    }, true);
+
+    return obj;
 
   },
 
   defaults: function (obj, defaults) {
 
-    this.eachIn(defaults, function (name, value) {
-      if (!obj[name]) { obj[name] = value; }
-    });
+    this.walk(obj, defaults, function (target, src, name) {
+
+      if (!target) {
+        this[name] = src;
+      }
+
+    }, true);
 
     return obj;
+
+  },
+
+  match: function (obj, test) {
+
+    var isMatch = true;
+
+    this.walk(obj, test, function (target, src) {
+      isMatch = (target === src);
+    });
+
+    return isMatch;
 
   },
 
@@ -197,7 +232,25 @@ module.exports = {
 
 }, true);
 
-provide('lilobj', function (require, module, exports) {
+provide('lilobj/arr', function (require, module, exports) {
+
+/*jshint curly:true, eqeqeq:true, immed:true, latedef:true,
+  newcap:true, noarg:true, sub:true, undef:true, boss:true,
+  strict:false, eqnull:true, browser:true, node:true */
+
+var obj = require('./obj');
+var _ = require('lil_');
+
+var arr = Object.create(Array.prototype);
+_.eachIn(obj, function (name, value) {
+  arr[name] = value;
+});
+
+module.exports = arr; 
+
+
+}, true);
+provide('lilobj/obj', function (require, module, exports) {
 
 /*jshint curly:true, eqeqeq:true, immed:true, latedef:true,
   newcap:true, noarg:true, sub:true, undef:true, boss:true,
@@ -239,6 +292,22 @@ module.exports = {
 
   }
 
+};
+
+
+}, true);
+provide('lilobj', function (require, module, exports) {
+
+/*jshint curly:true, eqeqeq:true, immed:true, latedef:true,
+  newcap:true, noarg:true, sub:true, undef:true, boss:true,
+  strict:false, eqnull:true, browser:true, node:true */
+
+var obj = require('./lilobj/obj');
+var arr = require('./lilobj/arr');
+
+module.exports = {
+  obj: obj,
+  arr: arr
 };
 
 
