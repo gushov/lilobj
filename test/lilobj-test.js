@@ -62,7 +62,7 @@ buster.testCase("LilObj", {
           }, this);
 
         }
-      }, []);
+      });
 
       var parents = Parents.create([
         'azure',

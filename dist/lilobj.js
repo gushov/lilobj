@@ -1,4 +1,4 @@
-/*! lilobj - v0.0.4 - 2013-01-15
+/*! lilobj - v0.0.5 - 2013-01-18
  * Copyright (c) 2013 August Hovland <gushov@gmail.com>; Licensed MIT */
 
 (function (ctx) {
@@ -245,18 +245,56 @@ provide('lilobj/arr', function (require, module, exports) {
 
 /*jshint curly:true, eqeqeq:true, immed:true, latedef:true,
   newcap:true, noarg:true, sub:true, undef:true, boss:true,
-  strict:false, eqnull:true, browser:true, node:true */
+  strict:false, eqnull:true, browser:true, node:true,
+  proto:true */
 
-var obj = require('./obj');
 var _ = require('lil_');
 
-var arr = Object.create(Array.prototype);
+function Arr() {
 
-_.each(obj, function (name, value) {
-  arr[name] = value;
-});
+  var arr = [];
+  arr.push.apply(arr, arguments);
+  arr.__proto__ = Arr.prototype;
 
-module.exports = arr;
+  return arr;
+
+}
+
+Arr.prototype = [];
+
+Arr.prototype.isA = function (prototype) {
+
+  function D() {}
+  D.prototype = prototype;
+  return this instanceof D;
+
+};
+
+Arr.prototype.extend = function (props) {
+
+    Arr.prototype = this;
+    var child = new Arr();
+
+    _.each(props, function (name) {
+      child[name] = props[name];
+    });
+
+    return child;
+};
+
+Arr.prototype.create = function () {
+
+    Arr.prototype = this;
+    var child = new Arr();
+
+    if (child.construct !== undefined) {
+      child.construct.apply(child, arguments);
+    }
+
+    return child;
+};
+
+module.exports = new Arr();
 
 
 }, true);
